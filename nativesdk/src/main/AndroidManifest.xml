@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.ggaab123.da5252.abdkdisskk">
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        tools:node="remove" />
+<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
+
+    <application android:usesCleartextTraffic="true" >
+<!--        <meta-data android:name="aa_cc_channel" android:value="1wNnKETql"/>-->
+<!--        <meta-data android:name="aa_cc_api_host" android:value="https://dafesae22.unisks.xyz/"/>-->
+        <!--<meta-data android:name="com.facebook.sdk.ApplicationId" android:value="654644162853036"/>-->
+
+<!--        <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>-->
+<!--        <meta-data android:name="com.facebook.sdk.ClientToken" android:value="@string/facebook_client_token"/>-->
+
+        <!--要禁用 SDK 自动初始化功能-->
+        <meta-data android:name="com.facebook.sdk.AutoInitEnabled"
+            android:value="false"/>
+
+
+<!--        <activity android:name="com.facebook.FacebookActivity"-->
+<!--            android:configChanges=-->
+<!--                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"-->
+<!--            android:label="abc" />-->
+<!--        <activity-->
+<!--            android:name="com.facebook.CustomTabActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.BROWSABLE" />-->
+<!--                <data android:scheme="@string/fb_login_protocol_scheme" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
+        <activity
+            android:name=".permission.PermissionActivity" />
+
+        <service
+            android:name="com.ggaab123.da5252.abdkdisskk.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+        <!--<meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />-->
+
+<!--        <activity android:theme="@android:style/Theme.NoTitleBar" android:name="com.ggaab123.da5252.abdkdisskk.StartActivity2" android:exported="true" android:configChanges="screenSize|orientation|keyboardHidden" android:alwaysRetainTaskState="true">-->
+<!--        </activity>-->
+
+        <activity android:theme="@android:style/Theme.NoTitleBar" android:name="com.ggaab123.da5252.abdkdisskk.StartActivity" android:exported="true" android:configChanges="screenSize|orientation|keyboardHidden" android:alwaysRetainTaskState="true">
+        </activity>
+
+    </application>
+
+
+
+</manifest>

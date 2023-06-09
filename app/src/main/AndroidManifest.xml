@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="100" android:versionName="1.0.0" android:installLocation="preferExternal" android:compileSdkVersion="32" android:compileSdkVersionCodename="12" package="game.cxjnjna1939sa.ckalj2912ss" platformBuildVersionCode="32" platformBuildVersionName="12">
+    <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="32"/>
+    <application android:name="com.ggaab123.da5252.abdkdisskk.App" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:label="@string/app_name" android:icon="@mipmap/icon_logo" >
+
+        <activity android:name="com.ggaab123.da5252.abdkdisskk.StartActivity" android:label="@string/app_name" android:exported="true" android:configChanges="screenSize|orientation|keyboardHidden" android:alwaysRetainTaskState="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

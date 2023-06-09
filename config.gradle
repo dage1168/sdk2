@@ -1,0 +1,18 @@
+ext {
+    APP_ID     = "20220329_003"
+    APP_NAME      = "Live Casino - Las Vegas Slots"
+    PACKAGENAME  = "com.test.aabbcc.test"
+    OUTPUT_DIR  = "/app/build/outputs/apk"
+    VERSION_NAME  = "1.0"
+    VERSION_CODE  = 1
+    IS_GOOGLE_SERVICES  = true
+    IS_LOADING  = false
+    REGISTRATION_INTERFACE  = "https://m.ph777m.com/api/1.0/member/register"
+    PAY_INTERFACE  = "https://app.bux.ph/payment"
+    HORIZONTAL_SCREEN_A  = 2
+    HORIZONTAL_SCREEN_B  = 1
+    JS_INSTANCE  = "android1"
+    AF_DEV_KEY  = "cuD96YKY6WnyVDgmaW9g3Q"
+    ADJUST_TOKEN  = "sqn0vhio1ou8"
+    EXTENDED_PARAMETERS  = "{ \\\"facebook_appid\\\": \\\"654644162853036\\\", \\\"facebook_client_token\\\": \\\"15bf779f19da8d8ba8dfa469164c83fe\\\", \\\"adjust_event_success\\\": \\\"ll8u8s\\\", \\\"adjust_event_fail\\\": \\\"dafe23re\\\", \\\"adjust_event_register\\\": \\\"fdaewfa1\\\", \\\"adjust_event_pay\\\": \\\"kmxq1h\\\", \\\"adjust_event_login\\\": \\\"kmxq1h\\\", \\\"login_api\\\": \\\"http://www.baidu2.com\\\", \\\"custom_event\\\": [  {   \\\"event_name\\\": \\\"login\\\",   \\\"event_urls\\\": \\\"http://www.baidu.com\\\"  },  {   \\\"event_name\\\": \\\"congzhi\\\",   \\\"event_urls\\\": \\\"http://www.qq.com\\\"  } ]}"
+}

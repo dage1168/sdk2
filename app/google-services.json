@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "255295329603",
+    "project_id": "mytestremotconfig",
+    "storage_bucket": "mytestremotconfig.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255295329603:android:43ec0ecc72295c0ad8cbf6",
+        "android_client_info": {
+          "package_name": "com.test.aabbcc.test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "255295329603-vucma9ggpisoosg9alpam7mfscs0d2nt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5J9JQXKAXjNv8wKuEKs5t0uS9u-QoSeM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "255295329603-vucma9ggpisoosg9alpam7mfscs0d2nt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

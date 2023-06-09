@@ -1,0 +1,210 @@
+plugins {
+    id 'com.android.application'
+}
+
+if(rootProject.ext.IS_GOOGLE_SERVICES) {
+    apply plugin:'com.google.gms.google-services'
+}
+
+android {
+    compileSdkVersion 33
+    buildToolsVersion "33.0.0"
+
+    defaultConfig {
+        applicationId rootProject.ext.PACKAGENAME
+        minSdkVersion 21
+        targetSdkVersion 31
+        flavorDimensions "platform"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+//        manifestPlaceholders = [
+//                CHANNEL: rootProject.ext.CHANNEL,
+//                API_HOST: rootProject.ext.API_HOST
+//        ]
+
+    }
+    viewBinding {
+        enabled = true
+    }
+    signingConfigs {
+        release {
+            keyAlias project.key_alias_release
+            keyPassword project.key_password_release
+            storeFile file(project.key_file_release)
+            storePassword project.store_password_release
+        }
+    }
+    buildTypes {
+        debug {
+            buildConfigField("boolean", "debug", "true")
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        release {
+            buildConfigField("boolean", "debug", "false")
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    productFlavors {
+        google {
+            applicationId android.defaultConfig.applicationId
+            versionCode rootProject.ext.VERSION_CODE
+            versionName rootProject.ext.VERSION_NAME
+
+//            setProperty("archivesBaseName", "${applicationId}-v${versionName}(${versionCode})")
+            manifestPlaceholders = [
+                    //环境workplace
+                    PLATFORM: "google"
+            ]
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+//    android.applicationVariants.all { variant ->
+//        variant.outputs.all {
+//            variant.outputs.each { output ->
+//                def outputFile = output.outputFile
+//                logger.error('---apk:' + outputFile)
+//                if (outputFile != null && outputFile.name.endsWith('.apk')) {
+//                    variant.getPackageApplication().outputDirectory = new File(rootProject.ext.APK_PATH)
+//                    logger.error('---apk2:' + rootProject.ext.APK_PATH)
+//                    outputFileName = rootProject.ext.APP_NAME + "-${variant.productFlavors[0].name}-${variant.productFlavors[0].versionName}-${variant.productFlavors[0].versionCode}" +
+//                            "-${releaseTime()}-${variant.buildType.name}.apk"
+////                    outputFile.delete()
+//                }
+//            }
+//        }
+//    }
+
+//    复制aab文件到指定目录
+    this.project.afterEvaluate { project ->
+        project.tasks.each { task ->
+            if (task.toString().contains("bundleRelease") || task.toString().contains("assemble")) {
+                logger.error('---aab1:' + task)
+                task.doLast {
+                    android.applicationVariants.all { variant ->
+                        def filename = rootProject.ext.APP_NAME + "-${variant.productFlavors[0].versionName}-${variant.productFlavors[0].versionCode}" +
+                                "-${releaseTime()}-${variant.buildType.name}"
+//                        def filename = rootProject.ext.APP_ID + "_" + rootProject.ext.APP_NAME + "-${variant.productFlavors[0].name}-${variant.productFlavors[0].versionName}-${variant.productFlavors[0].versionCode}" +
+//                                "-${releaseTime()}-${variant.buildType.name}"
+                        // 定义目标文件夹
+                        //output 文件夹
+                        def destFolder = new File("${rootProject.ext.OUTPUT_DIR}")
+                        //单个app的目录
+                        def destAppFolder = new File(destFolder.getParentFile().getParentFile(), rootProject.ext.APP_ID + File.separator + "apks" + File.separator + destFolder.getName());
+                        if (!destAppFolder.exists()) {
+                            destAppFolder.mkdirs()
+                        }
+                        if(task.toString().contains("bundleRelease") && variant.buildType.name.contains("release")) {
+                            // 默认生成aab的文件夹
+                            def workFolder = "${project.getProjectDir().path}/build/outputs/bundle/googleRelease"
+                            logger.error('---aab2:'  + workFolder + " " + destFolder + " " + destAppFolder)
+                            try {
+                                if (!destFolder.exists()) {
+                                    destFolder.mkdirs()
+                                }
+                                def aabName = filename + ".aab"
+                                copy {
+                                    from "${workFolder}/app-google-release.aab"
+                                    into "${destFolder}/"
+                                    rename {
+                                        aabName
+                                    }
+                                }
+
+                                copy {
+                                    from "${destFolder}/${aabName}"
+                                    into "${destAppFolder}/"
+                                }
+
+                            } catch (Exception e) {
+                                print e
+                            }
+                        }else if(task.toString().contains("assemble") && variant.buildType.name.contains("release")) {
+                            // 默认生成aab的文件夹
+                            def workFolder = "${project.getProjectDir().path}/build/outputs/apk/google/${variant.buildType.name}"
+                            logger.error('---aab3:'  + workFolder + " " + destFolder + " " + destAppFolder)
+                            try {
+                                if (!destFolder.exists()) {
+                                    destFolder.mkdir()
+                                }
+
+                                def apkName = filename + ".apk"
+                                copy {
+                                    from "${workFolder}/app-google-${variant.buildType.name}.apk"
+                                    into "${destFolder}/"
+                                    rename {
+                                        apkName
+                                    }
+                                }
+
+                                copy {
+                                    from "${destFolder}/${apkName}"
+                                    into "${destAppFolder}/"
+                                }
+                            } catch (Exception e) {
+                                print e
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+}
+
+//获取当前打包的时间
+def static releaseTime() {
+    return new Date().format("yyyy.MM.dd-HH.mm")
+}
+
+/**
+ * 生成随机关键字  不要数字开头
+ * @param length
+ * @return
+ */
+def static getRandomKeyword(int length) {
+    String str = "abcdefghijklmnopqrstuvwxyz";
+    Random random = new Random();
+    StringBuffer sb = new StringBuffer();
+    sb.append(str.charAt(random.nextInt(str.length())));
+
+    str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    for (int i = 0; i < length - 1; i++) {
+        int number = random.nextInt(str.length());
+        sb.append(str.charAt(number));
+    }
+    return sb.toString();
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+//    implementation(name:'nativesdk-firebase', ext:'aar')
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation project(path: ':nativesdk')
+
+}
