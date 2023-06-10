@@ -9,6 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.SecretKeySpec;
+
 public class FileUtils {
     public static void copyFiles(Context context, String fileName, File desFile) {
         InputStream in = null;
@@ -19,10 +23,10 @@ public class FileUtils {
             byte[] bytes = new byte[1024];
             int i;
             while ((i = in.read(bytes)) != -1)
-                out.write(bytes, 0 , i);
+                out.write(bytes, 0, i);
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             try {
                 if (in != null)
                     in.close();
@@ -55,5 +59,27 @@ public class FileUtils {
         if (!cache.exists())
             cache.mkdirs();
         return cache;
+    }
+
+    public static void decodeAES(String str, String str3, InputStream fis, File file) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(str.getBytes(), "AES");
+        Cipher instance = Cipher.getInstance(str3);
+        instance.init(2, secretKeySpec);
+        //        byte[] doFinal = instance.doFinal(bArr);
+
+        //        InputStream fis = new ByteArrayInputStream(bArr);
+        FileOutputStream fos = new FileOutputStream(file);
+        //        SecretKeySpec sks = new SecretKeySpec("MyDifficultPassw".getBytes(), "AES");
+//        Cipher cipher = Cipher.getInstance("AES");
+//        cipher.init(Cipher.DECRYPT_MODE, sks);
+        CipherInputStream cis = new CipherInputStream(fis, instance);
+        int b;
+        byte[] d = new byte[2048];
+        while ((b = cis.read(d)) != -1) {
+            fos.write(d, 0, b);
+        }
+        fos.flush();
+        fos.close();
+        cis.close();
     }
 }

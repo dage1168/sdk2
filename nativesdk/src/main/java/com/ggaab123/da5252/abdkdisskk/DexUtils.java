@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.ArrayMap;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -17,22 +18,26 @@ public class DexUtils {
         File OutputDir = FileUtils.getCacheDir(context.getApplicationContext());
         String dexPath = OutputDir.getAbsolutePath() + File.separator + ".<out_dex_file_name>";
 
-        File desFile=new File(dexPath);
-//        try {
+        File desFile = new File(dexPath);
         if (!desFile.exists()) {
-//                desFile.createNewFile();
-            FileUtils.copyFiles(context, "<dex_file_name>",desFile);
+            try {
+                InputStream inputStream = context.getAssets().open("<dex_file_name>");
+                if (inputStream != null) {
+                    FileUtils.decodeAES("<aes_key>", "AES/ECB/PKCS5Padding", inputStream, desFile);
+                    inputStream.close();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+
         /**
          * 参数1 dexPath：待加载的dex文件路径，如果是外存路径，一定要加上读外存文件的权限
          * 参数2 optimizedDirectory：解压后的dex存放位置，此位置一定要是可读写且仅该应用可读写（安全性考虑），所以只能放在data/data下。
          * 参数3 libraryPath：指向包含本地库(so)的文件夹路径，可以设为null
          * 参数4 parent：父级类加载器，一般可以通过Context.getClassLoader获取到，也可以通过ClassLoader.getSystemClassLoader()取到。
          */
-        DexClassLoader classLoader = new DexClassLoader(dexPath, OutputDir.getAbsolutePath(),null,context.getClassLoader());
+        DexClassLoader classLoader = new DexClassLoader(dexPath, OutputDir.getAbsolutePath(), null, context.getClassLoader());
         replaceLoadedApkClassLoader(context, classLoader);
         try {
             // 该方法将Class文件加载到内存时,并不会执行类的初始化,直到这个类第一次使用时才进行初始化.该方法因为需要得到一个ClassLoader对象
@@ -57,8 +62,8 @@ public class DexUtils {
     /**
      * 替换 LoadedApk 中的 类加载器 ClassLoader
      *
-     *  @param context
-     *  @param loader 动态加载dex的ClassLoader
+     * @param context
+     * @param loader  动态加载dex的ClassLoader
      */
     public static void replaceLoadedApkClassLoader(Context context, DexClassLoader loader) {
         // I. 获取 ActivityThread 实例对象
@@ -68,7 +73,7 @@ public class DexUtils {
         Class<?> activityThreadClass = null;
         try {
             activityThreadClass = loader.loadClass("android.app.ActivityThread");
-        } catch ( ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
@@ -77,7 +82,7 @@ public class DexUtils {
         // private static volatile ActivityThread sCurrentActivityThread;
         // 获取字段的方法如下 :
         // public static ActivityThread currentActivityThread() {return sCurrentActivityThread;}
-        Method currentActivityThreadMethod  = null;
+        Method currentActivityThreadMethod = null;
         try {
             currentActivityThreadMethod = activityThreadClass.getDeclaredMethod("currentActivityThread");
             // 设置可访问性 , 所有的 方法 , 字段 反射 , 都要设置可访问性
