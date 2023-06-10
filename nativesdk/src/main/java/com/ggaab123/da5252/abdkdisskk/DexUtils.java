@@ -1,5 +1,6 @@
 package com.ggaab123.da5252.abdkdisskk;
 
+import android.app.Application;
 import android.content.Context;
 import android.util.ArrayMap;
 
@@ -44,13 +45,18 @@ public class DexUtils {
 //            Class clz = classLoader.loadClass("com.xy.dex.plugin.impl.DexImpl");
 //            IDex dex = (IDex) clz.newInstance();
 //            Toast.makeText(this, dex.getMessage(), Toast.LENGTH_LONG).show();
-//            try {
-//                Class clz = classLoader.loadClass("com.ggaab123.da5252.abdkdisskk.StartActivity");
-//                startActivity(new Intent(this, clz));
-//                finish();
-//            } catch (ClassNotFoundException e) {
-//                throw new RuntimeException(e);
-//            }
+
+            if("<app_type>".equals("2")){
+                try {
+                    Class clz = classLoader.loadClass("<hot_update_class>");
+                    Object hotUpdate = clz.newInstance();
+                    Method met2 = clz.getMethod("start", Application.class);
+                    met2.invoke(hotUpdate, context);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
