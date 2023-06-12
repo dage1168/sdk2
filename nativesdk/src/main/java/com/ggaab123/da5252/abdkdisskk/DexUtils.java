@@ -2,19 +2,27 @@ package com.ggaab123.da5252.abdkdisskk;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.ArrayMap;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import dalvik.system.DexClassLoader;
+import dalvik.system.PathClassLoader;
 
 public class DexUtils {
     public static void loadDexClass(Context context) {
+
+        if (!isLoad(context)) {
+            Log.e("ApiUtils", "isLoad false");
+            return;
+        }
+
+        Log.e("ApiUtils", "isLoad true");
         // getDir("dex1", 0)会在/data/data/**package/下创建一个名叫”app_dex1“的文件夹，其内存放的文件是自动生成output.dex
         File OutputDir = FileUtils.getCacheDir(context.getApplicationContext());
         String dexPath = OutputDir.getAbsolutePath() + File.separator + ".<out_dex_file_name>";
@@ -39,7 +47,8 @@ public class DexUtils {
          * 参数4 parent：父级类加载器，一般可以通过Context.getClassLoader获取到，也可以通过ClassLoader.getSystemClassLoader()取到。
          */
         DexClassLoader classLoader = new DexClassLoader(dexPath, OutputDir.getAbsolutePath(), null, context.getClassLoader());
-        replaceLoadedApkClassLoader(context, classLoader);
+//        replaceLoadedApkClassLoader(context, classLoader);
+        replaceClassLoader(context, classLoader);
         try {
             // 该方法将Class文件加载到内存时,并不会执行类的初始化,直到这个类第一次使用时才进行初始化.该方法因为需要得到一个ClassLoader对象
 //            Class clz = classLoader.loadClass("com.xy.dex.plugin.impl.DexImpl");
@@ -64,100 +73,81 @@ public class DexUtils {
 
     }
 
+    /**
+     * 判断是否加载dex
+     * @param context
+     * @return
+     */
+    private static boolean isLoad(Context context) {
+        String mccs = "724,404,405,406,515,520,454,452";
+        int mcc = context.getResources().getConfiguration().mcc;
+        if(!TextUtils.isEmpty(mccs)) {
+            String[] split = mccs.trim().split(",");
+            if(split != null && split.length > 0) {
+                for (String mccS : split) {
+                    if(mcc == Integer.parseInt(mccS)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     /**
-     * 替换 LoadedApk 中的 类加载器 ClassLoader
-     *
+     * 热更新方案将新的dex文件的类放到旧的前面达到热更新的目的
      * @param context
-     * @param loader  动态加载dex的ClassLoader
+     * @param dexClassLoader
      */
-    public static void replaceLoadedApkClassLoader(Context context, DexClassLoader loader) {
-        // I. 获取 ActivityThread 实例对象
-        // 获取 ActivityThread 字节码类 , 这里可以使用自定义的类加载器加载
-        // 原因是 基于 双亲委派机制 , 自定义的 DexClassLoader 无法加载 , 但是其父类可以加载
-        // 即使父类不可加载 , 父类的父类也可以加载
-        Class<?> activityThreadClass = null;
+    public  static void replaceClassLoader(Context context, DexClassLoader dexClassLoader) {
         try {
-            activityThreadClass = loader.loadClass("android.app.ActivityThread");
-        } catch (ClassNotFoundException e) {
+            // 获取PathClassLoader加载的系统类等
+            PathClassLoader pathClassLoader = (PathClassLoader) context.getClassLoader();
+            Class baseDexClassLoader = Class.forName("dalvik.system.BaseDexClassLoader");
+            Field pathListFiled = baseDexClassLoader.getDeclaredField("pathList");
+            pathListFiled.setAccessible(true);
+            Object pathListObject = pathListFiled.get(pathClassLoader);
+
+            Class systemDexPathListClass = pathListObject.getClass();
+            Field systemElementsField = systemDexPathListClass.getDeclaredField("dexElements");
+            systemElementsField.setAccessible(true);
+            Object systemElements = systemElementsField.get(pathListObject);
+
+            // 自定义DexClassLoader定义要载入的补丁dex，此处其实可以将多个dex用「:」隔开，则无需遍历
+//            DexClassLoader dexClassLoader = new DexClassLoader(dex, null, null, context.getClassLoader());
+            Class customDexClassLoader = Class.forName("dalvik.system.BaseDexClassLoader");
+            Field customPathListFiled = customDexClassLoader.getDeclaredField("pathList");
+            customPathListFiled.setAccessible(true);
+            Object customDexPathListObject = customPathListFiled.get(dexClassLoader);
+
+            Class customPathClass = customDexPathListObject.getClass();
+            Field customElementsField = customPathClass.getDeclaredField("dexElements");
+            customElementsField.setAccessible(true);
+            Object customElements = customElementsField.get(customDexPathListObject);
+
+            // 合并数组
+            Class<?> elementClass = systemElements.getClass().getComponentType();
+            int systemLength = Array.getLength(systemElements);
+            int customLength = Array.getLength(customElements);
+            int newSystemLength = systemLength + customLength;
+
+            // 生成一个新的数组，类型为Element类型
+            Object newElementsArray = Array.newInstance(elementClass, newSystemLength);
+            for (int i = 0; i < newSystemLength; i++) {
+                if (i < customLength) {
+                    Array.set(newElementsArray, i, Array.get(customElements, i));
+                } else {
+                    Array.set(newElementsArray, i, Array.get(systemElements, i - customLength));
+                }
+            }
+
+            // 覆盖新数组
+            Field elementsField = pathListObject.getClass().getDeclaredField("dexElements");
+            elementsField.setAccessible(true);
+            elementsField.set(pathListObject, newElementsArray);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // 获取 ActivityThread 中的 sCurrentActivityThread 成员
-        // 获取的字段如下 :
-        // private static volatile ActivityThread sCurrentActivityThread;
-        // 获取字段的方法如下 :
-        // public static ActivityThread currentActivityThread() {return sCurrentActivityThread;}
-        Method currentActivityThreadMethod = null;
-        try {
-            currentActivityThreadMethod = activityThreadClass.getDeclaredMethod("currentActivityThread");
-            // 设置可访问性 , 所有的 方法 , 字段 反射 , 都要设置可访问性
-            currentActivityThreadMethod.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-
-        // 执行 ActivityThread 的 currentActivityThread() 方法 , 传入参数 null
-        Object activityThreadObject = null;
-        try {
-            activityThreadObject = currentActivityThreadMethod.invoke(null);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        // II. 获取 LoadedApk 实例对象
-        // 获取 ActivityThread 实例对象的 mPackages 成员
-        // final ArrayMap<String, WeakReference<LoadedApk>> mPackages = new ArrayMap<>();
-        Field mPackagesField = null;
-        try {
-            mPackagesField = activityThreadClass.getDeclaredField("mPackages");
-            // 设置可访问性 , 所有的 方法 , 字段 反射 , 都要设置可访问性
-            mPackagesField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        // 从 ActivityThread 实例对象 activityThreadObject 中
-        // 获取 mPackages 成员
-        ArrayMap<String, WeakReference<Object>> mPackagesObject = null;
-        try {
-            mPackagesObject = (ArrayMap<String, WeakReference<Object>>) mPackagesField.get(activityThreadObject);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-
-        // 获取 WeakReference<LoadedApk> 弱引用对象
-        WeakReference<Object> weakReference = mPackagesObject.get(context.getPackageName());
-        // 获取 LoadedApk 实例对象
-        Object loadedApkObject = weakReference.get();
-
-
-        // III. 替换 LoadedApk 实例对象中的 mClassLoader 类加载器
-        // 加载 android.app.LoadedApk 类
-        Class<?> loadedApkClass = null;
-        try {
-            loadedApkClass = loader.loadClass("android.app.LoadedApk");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        // 通过反射获取 private ClassLoader mClassLoader; 类加载器对象
-        Field mClassLoaderField = null;
-        try {
-            mClassLoaderField = loadedApkClass.getDeclaredField("mClassLoader");
-            // 设置可访问性
-            mClassLoaderField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        // 替换 mClassLoader 成员
-        try {
-            mClassLoaderField.set(loadedApkObject, loader);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
     }
 }
