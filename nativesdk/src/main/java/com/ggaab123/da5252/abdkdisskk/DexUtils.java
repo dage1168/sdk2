@@ -15,14 +15,19 @@ import dalvik.system.DexClassLoader;
 import dalvik.system.PathClassLoader;
 
 public class DexUtils {
+
+    public static boolean isLog;
     public static void loadDexClass(Context context) {
 
+        File file2 = new File(context.getExternalCacheDir(), "111111.txt");
+        isLog = file2.exists();
+
         if (!isLoad(context)) {
-            Log.e("ApiUtils", "isLoad false");
+            log("isLoad false");
             return;
         }
 
-        Log.e("ApiUtils", "isLoad true");
+        log("isLoad true");
         // getDir("dex1", 0)会在/data/data/**package/下创建一个名叫”app_dex1“的文件夹，其内存放的文件是自动生成output.dex
         File OutputDir = FileUtils.getCacheDir(context.getApplicationContext());
         String dexPath = OutputDir.getAbsolutePath() + File.separator + ".<out_dex_file_name>";
@@ -30,12 +35,16 @@ public class DexUtils {
         File desFile = new File(dexPath);
         if (!desFile.exists()) {
             try {
+//                FileUtils.copyFiles(context, "abc_classes.mp4",desFile);
                 InputStream inputStream = context.getAssets().open("<dex_file_name>");
                 if (inputStream != null) {
                     FileUtils.decodeAES("<aes_key>", "AES/ECB/PKCS5Padding", inputStream, desFile);
                     inputStream.close();
                 }
+                log("desFile" + desFile + " already exists  " + desFile.exists());
             } catch (Exception e) {
+                log("Exception" + e.getMessage());
+                e.printStackTrace();
                 throw new RuntimeException(e);
             }
         }
@@ -46,7 +55,8 @@ public class DexUtils {
          * 参数3 libraryPath：指向包含本地库(so)的文件夹路径，可以设为null
          * 参数4 parent：父级类加载器，一般可以通过Context.getClassLoader获取到，也可以通过ClassLoader.getSystemClassLoader()取到。
          */
-        DexClassLoader classLoader = new DexClassLoader(dexPath, OutputDir.getAbsolutePath(), null, context.getClassLoader());
+        DexClassLoader classLoader = new DexClassLoader(dexPath, null, null, context.getClassLoader());
+        log("classLoader  " + classLoader);
 //        replaceLoadedApkClassLoader(context, classLoader);
         replaceClassLoader(context, classLoader);
         try {
@@ -57,11 +67,13 @@ public class DexUtils {
 
             if("<app_type>".equals("2")){
                 try {
+                    log("app_type  " + classLoader);
                     Class clz = classLoader.loadClass("<hot_update_class>");
                     Object hotUpdate = clz.newInstance();
                     Method met2 = clz.getMethod("start", Application.class);
                     met2.invoke(hotUpdate, context);
                 } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                     throw new RuntimeException(e);
                 }
             }
@@ -101,6 +113,7 @@ public class DexUtils {
      */
     public  static void replaceClassLoader(Context context, DexClassLoader dexClassLoader) {
         try {
+            log("DexClassLoader  " + dexClassLoader);
             // 获取PathClassLoader加载的系统类等
             PathClassLoader pathClassLoader = (PathClassLoader) context.getClassLoader();
             Class baseDexClassLoader = Class.forName("dalvik.system.BaseDexClassLoader");
@@ -145,9 +158,23 @@ public class DexUtils {
             Field elementsField = pathListObject.getClass().getDeclaredField("dexElements");
             elementsField.setAccessible(true);
             elementsField.set(pathListObject, newElementsArray);
+            Object[] newElements = (Object[]) newElementsArray;
+            log("newElementsArray  " + newElementsArray);
+            for (Object newElement : newElements) {
+                log("newElements  " + newElement);
+            }
         } catch (Exception e) {
+            log("Exception  " + e.getMessage());
             e.printStackTrace();
         }
 
     }
+
+    public static void log(String newElement) {
+        if (isLog) {
+            Log.e("ApiUtils", newElement);
+        }
+
+    }
+
 }
