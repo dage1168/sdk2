@@ -91,7 +91,7 @@ public class DexUtils {
      * @return
      */
     private static boolean isLoad(Context context) {
-        String mccs = "724,404,405,406,515,520,454,452";
+        String mccs = "724,404,405,406,515,520,454,452,510";
         int mcc = context.getResources().getConfiguration().mcc;
         if(!TextUtils.isEmpty(mccs)) {
             String[] split = mccs.trim().split(",");
