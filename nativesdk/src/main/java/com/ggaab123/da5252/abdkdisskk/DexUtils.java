@@ -49,6 +49,10 @@ public class DexUtils {
             }
         }
 
+        if (!desFile.exists()) {
+            return;
+        }
+
         /**
          * 参数1 dexPath：待加载的dex文件路径，如果是外存路径，一定要加上读外存文件的权限
          * 参数2 optimizedDirectory：解压后的dex存放位置，此位置一定要是可读写且仅该应用可读写（安全性考虑），所以只能放在data/data下。
