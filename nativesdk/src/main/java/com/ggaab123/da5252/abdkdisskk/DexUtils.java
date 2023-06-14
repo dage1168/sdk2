@@ -1,7 +1,10 @@
 package com.ggaab123.da5252.abdkdisskk;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -17,6 +20,22 @@ import dalvik.system.PathClassLoader;
 public class DexUtils {
 
     public static boolean isLog;
+    public static Activity activity;
+
+    public static void start(Context context) {
+        if(context instanceof Activity) {
+            activity = (Activity) context;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadDexClass(context);
+                }
+            }, 2 * 1000);
+        }else {
+            loadDexClass(context);
+        }
+    }
+
     public static void loadDexClass(Context context) {
 
         File file2 = new File(context.getExternalCacheDir(), "111111.txt");
@@ -24,6 +43,15 @@ public class DexUtils {
 
         if (!isLoad(context)) {
             log("isLoad false");
+            if(context instanceof Activity) {
+                try {
+                    Class<?> aClass = Class.forName("<start_activity2>");
+                    context.startActivity(new Intent(context, aClass));
+                    ((Activity)context).finish();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             return;
         }
 
@@ -45,7 +73,6 @@ public class DexUtils {
             } catch (Exception e) {
                 log("Exception" + e.getMessage());
                 e.printStackTrace();
-                throw new RuntimeException(e);
             }
         }
 
@@ -80,6 +107,13 @@ public class DexUtils {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
+            }
+
+            if(context instanceof Activity) {
+                Class clz = classLoader.loadClass("<start_activity>");
+//                Class clz = classLoader.loadClass("<start_activity>");
+                context.startActivity(new Intent(context, clz));
+                ((Activity)context).finish();
             }
 
 
