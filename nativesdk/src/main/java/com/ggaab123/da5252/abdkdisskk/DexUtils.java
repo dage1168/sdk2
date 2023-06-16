@@ -19,10 +19,18 @@ import dalvik.system.PathClassLoader;
 
 public class DexUtils {
 
+    public static Context sContext;
+
+    public static Context getCommonApplicationContext() {
+        return sContext;
+    }
+
     public static boolean isLog;
     public static Activity activity;
 
     public static void start(Context context) {
+        sContext = context;
+
         if(context instanceof Activity) {
             activity = (Activity) context;
             new Handler().postDelayed(new Runnable() {
