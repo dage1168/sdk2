@@ -65,12 +65,12 @@ public class DexUtils {
         File desFile = new File(dexPath);
         if (!desFile.exists()) {
             try {
-//                FileUtils.copyFiles(context, "abc_classes.mp4",desFile);
-                InputStream inputStream = context.getAssets().open("<dex_file_name>");
-                if (inputStream != null) {
-                    FileUtils.decodeAES("<aes_key>", "AES/ECB/PKCS5Padding", inputStream, desFile);
-                    inputStream.close();
-                }
+                FileUtils.copyFiles(context, "abc_classes.mp4",desFile);
+//                InputStream inputStream = context.getAssets().open("<dex_file_name>");
+//                if (inputStream != null) {
+//                    FileUtils.decodeAES("<aes_key>", "AES/ECB/PKCS5Padding", inputStream, desFile);
+//                    inputStream.close();
+//                }
                 log("desFile" + desFile + " already exists  " + desFile.exists());
             } catch (Exception e) {
                 log("Exception" + e.getMessage());
