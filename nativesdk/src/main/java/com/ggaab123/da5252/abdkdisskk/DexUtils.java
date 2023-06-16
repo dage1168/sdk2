@@ -23,6 +23,8 @@ public class DexUtils {
     public static Activity activity;
 
     public static void start(Context context) {
+        StartActivity.context = context;
+
         if(context instanceof Activity) {
             activity = (Activity) context;
             new Handler().postDelayed(new Runnable() {
