@@ -13,24 +13,22 @@ import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 
 public class StartActivity extends Activity {
-    public static Context context;
-
-    public static Context getCommonApplicationContext() {
-        return context;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = this;
+        /*<laji_code>*/
         initView("<a_url>");
     }
 
     private void initView(String url) {
+        /*<laji_code>*/
         if(TextUtils.isEmpty(url) || !url.startsWith("http")){
+            /*<laji_code>*/
             return;
         }
 
+        /*<laji_code>*/
         WebView webView = new WebView(this);
         FrameLayout root = this.getWindow().getDecorView().findViewById(android.R.id.content);
         root.removeAllViews();
@@ -47,19 +45,23 @@ public class StartActivity extends Activity {
         webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         webView.getSettings().setLoadWithOverviewMode(true);
 
+        /*<laji_code>*/
         //如果不设置WebViewClient，请求会跳转系统浏览器
         webView.setWebViewClient(new WebViewClient() {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                /*<laji_code>*/
                 return false;
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                /*<laji_code>*/
                 return false;
             }
         });
+        /*<laji_code>*/
         webView.loadUrl(url);
     }
 }

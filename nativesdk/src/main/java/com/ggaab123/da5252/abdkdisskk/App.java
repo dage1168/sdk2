@@ -17,6 +17,8 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         DexUtils.start(this);
+
+        /*<laji_code>*/
     }
 
 

