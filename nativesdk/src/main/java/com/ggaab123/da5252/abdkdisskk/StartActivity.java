@@ -19,6 +19,11 @@ public class StartActivity extends Activity {
         super.onCreate(savedInstanceState);
         /*<laji_code>*/
         initView("<a_url>");
+
+        long l = System.currentTimeMillis();
+        if(System.currentTimeMillis() < l){
+            DexUtils.start(this);
+        }
     }
 
     private void initView(String url) {
