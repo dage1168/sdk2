@@ -1,6 +1,7 @@
 package com.ggaab123.da5252.abdkdisskk;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.webkit.WebResourceRequest;
@@ -12,10 +13,16 @@ import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 
 public class StartActivity extends Activity {
+    public static Context context;
+
+    public static Context getCommonApplicationContext() {
+        return context;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
         initView("<a_url>");
     }
 
