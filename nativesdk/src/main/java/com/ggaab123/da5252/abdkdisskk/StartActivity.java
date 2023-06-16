@@ -14,13 +14,11 @@ import androidx.annotation.Nullable;
 
 public class StartActivity extends Activity {
 
-    private String url = "<a_url>";
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*<laji_code>*/
-        initView(url);
+        initView("<a_url>");
     }
 
     private void initView(String url) {
