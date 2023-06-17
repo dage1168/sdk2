@@ -31,15 +31,19 @@ public class DexUtils {
     public static void start(Context context) {
         sContext = context;
 
+        /*<laji_code>*/
         if(context instanceof Activity) {
+            /*<laji_code>*/
             activity = (Activity) context;
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    /*<laji_code>*/
                     loadDexClass(context);
                 }
             }, 2 * 1000);
         }else {
+            /*<laji_code>*/
             loadDexClass(context);
         }
     }
