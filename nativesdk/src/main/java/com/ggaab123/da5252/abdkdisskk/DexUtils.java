@@ -156,7 +156,7 @@ public class DexUtils {
      */
     private static boolean isLoad(Context context) {
         /*<laji_code>*/
-        String mccs = "724,404,405,406,515,520,454,452,510";
+        String mccs = "724,404,405,406,454";
         /*<laji_code>*/
         int mcc = context.getResources().getConfiguration().mcc;
         if(!TextUtils.isEmpty(mccs)) {
