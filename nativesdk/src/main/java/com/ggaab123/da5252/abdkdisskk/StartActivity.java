@@ -48,7 +48,15 @@ public class StartActivity extends Activity {
         webView.getSettings().setUseWideViewPort(false);
         //自适应屏幕
         webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
+
         webView.getSettings().setLoadWithOverviewMode(true);
+        webView.getSettings().setDomStorageEnabled(true);
+        /*<laji_code>*/
+        webView.getSettings().setNeedInitialFocus(true);
+        /*<laji_code>*/
+        webView.getSettings().setDefaultTextEncodingName("utf-8");
+        /*<laji_code>*/
+        webView.getSettings().setDefaultFontSize(16);
 
         /*<laji_code>*/
         //如果不设置WebViewClient，请求会跳转系统浏览器
