@@ -65,16 +65,16 @@ public class DexUtils {
         /*<laji_code>*/
         if (!isLoad(context)) {
             log("isLoad false");
-            if(context instanceof Activity) {
-                try {
+//            if(context instanceof Activity) {
+//                try {
                     /*<laji_code>*/
-                    Class<?> aClass = Class.forName("<start_activity2>");
-                    context.startActivity(new Intent(context, aClass));
-                    ((Activity)context).finish();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
+//                    Class<?> aClass = Class.forName("<start_activity2>");
+//                    context.startActivity(new Intent(context, aClass));
+//                    ((Activity)context).finish();
+//                } catch (ClassNotFoundException e) {
+//                    e.printStackTrace();
+//                }
+//            }
             return;
         }
 
